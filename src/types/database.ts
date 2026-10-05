@@ -1,4 +1,4 @@
-// Tipi del database (schema in supabase/migrations/0001_schema.sql).
+// Tipi del database (schema in supabase/migrations/).
 // Scritti a mano nel formato di `supabase gen types`: rigenerarli con `npm run db:types` quando il progetto è collegato.
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -245,6 +245,7 @@ export type Database = {
         },
         [Rel<"product_id", "products">]
       >;
+      order_counters: Table<{ anno: number; ultimo: number }, { anno: number; ultimo: number }>;
       settings: Table<{ chiave: string; valore: Json }, { chiave: string; valore: Json }>;
     };
     Views: { [_ in never]: never };
@@ -252,6 +253,8 @@ export type Database = {
       is_staff: { Args: Record<string, never>; Returns: boolean };
       is_admin: { Args: Record<string, never>; Returns: boolean };
       decrement_stock: { Args: { p_order_id: string }; Returns: undefined };
+      genera_numero_ordine: { Args: Record<string, never>; Returns: string };
+      incrementa_utilizzo_coupon: { Args: { p_codice: string }; Returns: boolean };
       search_products: {
         Args: { q: string; max_results?: number };
         Returns: { id: string; titolo: string; slug: string; rank: number }[];
