@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import "server-only";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";

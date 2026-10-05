@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import CartProvider from "@/components/cart/CartProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -18,9 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="it" className={inter.variable}>
       <body className="flex min-h-screen flex-col font-sans">
-        <Header />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">{children}</main>
-        <Footer />
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );
