@@ -28,7 +28,7 @@ export default async function AdminDashboard() {
       <div className="mb-8 grid grid-cols-2 gap-4 xl:grid-cols-4">
         {tiles.map(({ label, value, icon: Icon, href }) => (
           <Link key={label} href={href} className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
-            <Icon className="mb-3 text-terracotta" />
+            <Icon className="mb-3 text-terracotta-dark" />
             <p className="text-3xl font-extrabold">{value}</p>
             <p className="text-sm text-neutral-600">{label}</p>
           </Link>

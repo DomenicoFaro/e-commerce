@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/catalog/Breadcrumbs";
 import RichText from "@/components/RichText";
 import { getNegozio, getPagina, PAGINE, type PaginaSlug } from "@/lib/settings";
 
-export const revalidate = 60;
+export const revalidate = 600;
 export const dynamicParams = false;
 export const generateStaticParams = () => Object.keys(PAGINE).map((pagina) => ({ pagina }));
 
@@ -32,19 +32,19 @@ export default async function InfoPage({ params }: Props) {
 
       {params.pagina === "contatti" && (
         <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-          <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm"><MapPin className="shrink-0 text-terracotta" />{negozio.indirizzo}</li>
-          <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm"><Clock className="shrink-0 text-terracotta" />{negozio.orari_testo}</li>
+          <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm"><MapPin className="shrink-0 text-terracotta-dark" />{negozio.indirizzo}</li>
+          <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm"><Clock className="shrink-0 text-terracotta-dark" />{negozio.orari_testo}</li>
           <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm">
-            <Phone className="shrink-0 text-terracotta" /><a href={`tel:${negozio.telefono.replace(/\s/g, "")}`} className="font-semibold hover:underline">{negozio.telefono}</a>
+            <Phone className="shrink-0 text-terracotta-dark" /><a href={`tel:${negozio.telefono.replace(/\s/g, "")}`} className="font-semibold hover:underline">{negozio.telefono}</a>
           </li>
           {negozio.email && (
             <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm">
-              <Mail className="shrink-0 text-terracotta" /><a href={`mailto:${negozio.email}`} className="font-semibold hover:underline">{negozio.email}</a>
+              <Mail className="shrink-0 text-terracotta-dark" /><a href={`mailto:${negozio.email}`} className="font-semibold hover:underline">{negozio.email}</a>
             </li>
           )}
           {negozio.whatsapp && (
             <li className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm">
-              <MessageCircle className="shrink-0 text-terracotta" />
+              <MessageCircle className="shrink-0 text-terracotta-dark" />
               <a href={`https://wa.me/${negozio.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">WhatsApp {negozio.whatsapp}</a>
             </li>
           )}

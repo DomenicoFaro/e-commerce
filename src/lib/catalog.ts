@@ -1,12 +1,21 @@
-import { cache } from "react";
+import "server-only";
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Tables } from "@/types/database";
+import { SORTS, type Sort } from "./sorts";
 
-// Query del catalogo. Il negozio ha poche centinaia di prodotti: i filtri sulle varianti
-// (prezzo, colore, misura, disponibilità) sono calcolati qui invece che in SQL.
+// Query del catalogo. Il negozio ha poche centinaia di prodotti: l'intero catalogo pubblicato
+// viene letto con una query, tenuto in cache sul server e filtrato in memoria.
+// La cache si svuota subito quando l'admin salva (revalidateTag(CATALOG_TAG)) e comunque ogni 10 minuti.
 
+export { SORTS, type Sort };
 export type Category = Tables<"categories">;
 export type Variant = Tables<"product_variants">;
+
+export const CATALOG_TAG = "catalogo";
+const REVALIDATE = 600;
+const cached = <A extends unknown[], R>(fn: (...args: A) => Promise<R>, key: string) =>
+  unstable_cache(fn, [key], { tags: [CATALOG_TAG], revalidate: REVALIDATE });
 
 const LIST_SELECT =
   "id, titolo, slug, created_at, in_evidenza, category_id, brands(nome, slug), product_variants(id, prezzo, prezzo_barrato, stock, colore, misura, taglia), product_images(url, alt, ordine)";
@@ -19,6 +28,8 @@ export type ProductCardData = {
   titolo: string;
   slug: string;
   createdAt: string;
+  categoryId: string | null;
+  inEvidenza: boolean;
   marca: { nome: string; slug: string } | null;
   immagine: { url: string; alt: string };
   prezzoMin: number;
@@ -33,6 +44,8 @@ type ListRow = {
   titolo: string;
   slug: string;
   created_at: string;
+  in_evidenza: boolean;
+  category_id: string | null;
   brands: { nome: string; slug: string } | null;
   product_variants: Pick<Variant, "id" | "prezzo" | "prezzo_barrato" | "stock" | "colore" | "misura" | "taglia">[];
   product_images: { url: string; alt: string; ordine: number }[];
@@ -52,6 +65,8 @@ function toCard(p: ListRow): ProductCardData {
     titolo: p.titolo,
     slug: p.slug,
     createdAt: p.created_at,
+    categoryId: p.category_id,
+    inEvidenza: p.in_evidenza,
     marca: p.brands,
     immagine: { url: img?.url ?? "/placeholder.svg", alt: img?.alt || p.titolo },
     prezzoMin: cheapest?.prezzo ?? 0,
@@ -62,13 +77,24 @@ function toCard(p: ListRow): ProductCardData {
   };
 }
 
+/** Tutto il catalogo pubblicato, già nel formato delle schede (in cache). */
+const getAllCards = cached(async (): Promise<ProductCardData[]> => {
+  const { data, error } = await db()
+    .from("products")
+    .select(LIST_SELECT)
+    .eq("stato", "published")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as unknown as ListRow[]).map(toCard);
+}, "catalogo:schede");
+
 // ───────────── Categorie ─────────────
 
-export const getCategories = cache(async (): Promise<Category[]> => {
+export const getCategories = cached(async (): Promise<Category[]> => {
   const { data, error } = await db().from("categories").select("*").order("ordine");
   if (error) throw error;
   return data;
-});
+}, "catalogo:categorie");
 
 export const getDepartments = async () => (await getCategories()).filter((c) => !c.parent_id);
 
@@ -88,14 +114,6 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 // ───────────── Prodotti ─────────────
-
-export const SORTS = {
-  rilevanza: "Rilevanza",
-  novita: "Novità",
-  "prezzo-asc": "Prezzo crescente",
-  "prezzo-desc": "Prezzo decrescente",
-} as const;
-export type Sort = keyof typeof SORTS;
 
 export type ListFilters = {
   categoryIds?: string[];
@@ -117,13 +135,15 @@ export type Facets = { marche: { nome: string; slug: string }[]; colori: string[
 export async function listProducts(f: ListFilters): Promise<{ products: ProductCardData[]; facets: Facets }> {
   if (f.productIds?.length === 0) return { products: [], facets: { marche: [], colori: [], misure: [] } };
 
-  let q = db().from("products").select(LIST_SELECT).eq("stato", "published");
-  if (f.categoryIds) q = q.in("category_id", f.categoryIds);
-  if (f.productIds) q = q.in("id", f.productIds);
-  const { data, error } = await q;
-  if (error) throw error;
-
-  let cards = (data as unknown as ListRow[]).map(toCard);
+  let cards = await getAllCards();
+  if (f.categoryIds) {
+    const ids = new Set(f.categoryIds);
+    cards = cards.filter((p) => p.categoryId && ids.has(p.categoryId));
+  }
+  if (f.productIds) {
+    const ids = new Set(f.productIds);
+    cards = cards.filter((p) => ids.has(p.id));
+  }
   if (f.brandSlug) cards = cards.filter((p) => p.marca?.slug === f.brandSlug);
   if (f.soloOfferte) cards = cards.filter((p) => p.prezzoBarrato !== null);
 
@@ -146,6 +166,7 @@ export async function listProducts(f: ListFilters): Promise<{ products: ProductC
   );
 
   const sort = f.sort ?? (f.productIds ? "rilevanza" : "novita");
+  cards = [...cards];
   if (sort === "rilevanza" && f.productIds) {
     const pos = new Map(f.productIds.map((id, i) => [id, i]));
     cards.sort((a, b) => pos.get(a.id)! - pos.get(b.id)!);
@@ -159,25 +180,24 @@ export async function listProducts(f: ListFilters): Promise<{ products: ProductC
 }
 
 export async function getFeaturedProducts(limit = 8) {
-  const { data, error } = await db()
-    .from("products")
-    .select(LIST_SELECT)
-    .eq("stato", "published")
-    .eq("in_evidenza", true)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  if (error) throw error;
-  return (data as unknown as ListRow[]).map(toCard);
+  return (await getAllCards()).filter((p) => p.inEvidenza).slice(0, limit);
 }
 
-/** Id dei prodotti trovati, in ordine di rilevanza. */
-export async function searchProductIds(q: string, max = 100) {
-  const { data, error } = await db().rpc("search_products", { q, max_results: max });
+/** Id dei prodotti trovati, in ordine di rilevanza (in cache per testo cercato). */
+export const searchProductIds = cached(async (q: string) => {
+  const { data, error } = await db().rpc("search_products", { q, max_results: 100 });
   if (error) throw error;
   return data.map((r) => r.id);
-}
+}, "catalogo:ricerca");
 
-export const getProductBySlug = cache(async (slug: string) => {
+/** Suggerimenti per l'autocompletamento (in cache per testo cercato). */
+export const suggestProducts = cached(async (q: string) => {
+  const { data, error } = await db().rpc("search_products", { q, max_results: 6 });
+  if (error) throw error;
+  return data.map(({ id, titolo, slug }) => ({ id, titolo, slug }));
+}, "catalogo:suggerimenti");
+
+export const getProductBySlug = cached(async (slug: string) => {
   const { data, error } = await db()
     .from("products")
     .select("*, brands(nome, slug), categories(nome, slug), product_variants(*), product_images(*)")
@@ -191,17 +211,28 @@ export const getProductBySlug = cache(async (slug: string) => {
     product_images: [...data.product_images].sort((a, b) => a.ordine - b.ordine),
     product_variants: [...data.product_variants].sort((a, b) => a.prezzo - b.prezzo || a.sku.localeCompare(b.sku)),
   };
-});
+}, "catalogo:prodotto");
 export type ProductDetail = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
 
-export async function getBrandBySlug(slug: string) {
-  const { data, error } = await db().from("brands").select("*").eq("slug", slug).maybeSingle();
+export const getPublishedSlugs = async () => (await getAllCards()).map((p) => p.slug);
+
+export const getBrands = cached(async () => {
+  const { data, error } = await db().from("brands").select("*").order("nome");
   if (error) throw error;
   return data;
+}, "catalogo:marche");
+
+export async function getBrandBySlug(slug: string) {
+  return (await getBrands()).find((b) => b.slug === slug) ?? null;
 }
 
-export async function getBrands() {
-  const { data, error } = await db().from("brands").select("*").order("nome");
+/** Varianti per il carrello: prezzo, stock e dati del prodotto (sempre aggiornati, senza cache). */
+export async function getCartVariants(ids: string[]) {
+  if (!ids.length) return [];
+  const { data, error } = await createPublicClient({ fresh: true })
+    .from("product_variants")
+    .select("id, prezzo, prezzo_barrato, stock, colore, misura, taglia, products(titolo, slug, stato, product_images(url, alt, ordine))")
+    .in("id", ids.slice(0, 100));
   if (error) throw error;
   return data;
 }

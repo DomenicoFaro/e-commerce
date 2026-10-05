@@ -6,13 +6,13 @@ const config: Config = {
     extend: {
       colors: {
         navy: "#1F2A44",
-        terracotta: "#E07A5F",
+        terracotta: { DEFAULT: "#E07A5F", dark: "#A94530" }, // dark: testi e fondi con scritta bianca (contrasto AA)
         sun: "#F2C14E",
         page: "#F5F5F2",
       },
       fontFamily: { sans: ["var(--font-inter)", "system-ui", "sans-serif"] },
       keyframes: {
-        "page-in": { from: { opacity: "0", transform: "translateY(28px) scale(.99)", filter: "blur(4px)" }, to: { opacity: "1", transform: "none", filter: "none" } },
+        "page-in": { from: { opacity: "0", transform: "translateY(28px) scale(.99)" }, to: { opacity: "1", transform: "none" } },
         "fade-up": { from: { opacity: "0", transform: "translateY(16px)" }, to: { opacity: "1", transform: "none" } },
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
         "scale-in": { from: { opacity: "0", transform: "scale(.96)" }, to: { opacity: "1", transform: "none" } },
@@ -26,6 +26,7 @@ const config: Config = {
       animation: {
         "page-in": "page-in .6s cubic-bezier(.2,.8,.2,1) both",
         "fade-up": "fade-up .5s cubic-bezier(.2,.8,.2,1) both",
+        "card-in": "fade-up .5s cubic-bezier(.2,.8,.2,1) both",
         "fade-in": "fade-in .3s ease-out both",
         "scale-in": "scale-in .35s cubic-bezier(.2,.8,.2,1) both",
         "slide-in-right": "slide-in-right .45s cubic-bezier(.2,.8,.2,1) both",

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
-import { SORTS, type Sort } from "@/lib/catalog";
+import { SORTS, type Sort } from "@/lib/sorts";
 
 /** Ordinamento collegato al form dei filtri (attributo form), inviato a ogni cambio. */
 export default function SortSelect({ value, formId, showRilevanza }: { value?: Sort; formId: string; showRilevanza?: boolean }) {

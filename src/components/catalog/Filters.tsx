@@ -53,7 +53,7 @@ export default function Filters({ facets, params, hidden, showMarche = true, res
         {Object.entries(hidden ?? {}).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold">Filtri</h2>
-          {attivi > 0 && <Link href={resetHref} className="text-xs font-semibold text-terracotta hover:underline">Azzera tutto</Link>}
+          {attivi > 0 && <Link href={resetHref} className="text-xs font-semibold text-terracotta-dark hover:underline">Azzera tutto</Link>}
         </div>
 
         <label className="flex cursor-pointer items-center justify-between gap-3">

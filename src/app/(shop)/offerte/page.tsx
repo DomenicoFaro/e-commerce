@@ -17,7 +17,7 @@ export default async function OffertePage({ searchParams }: { searchParams: Sear
       <PageHero
         tone="terracotta"
         eyebrow="Prezzi speciali"
-        title={maxSconto > 0 ? <>Offerte fino al <span className="text-navy">-{maxSconto}%</span></> : "Offerte"}
+        title={maxSconto > 0 ? <>Offerte fino al <span className="text-sun">-{maxSconto}%</span></> : "Offerte"}
         description="I migliori marchi per la casa a prezzo ribassato, fino a esaurimento scorte."
       />
       <CatalogLayout

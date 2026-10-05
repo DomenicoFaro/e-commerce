@@ -71,7 +71,7 @@ export default function VariantPicker({ titolo, marca, puntiChiave, variants, im
             <ProductImage src={main.url} alt={main.alt || titolo} fill priority sizes="(min-width: 1024px) 55vw, 100vw" className="object-contain p-4" />
           </div>
           {sconto > 0 && (
-            <span className="absolute left-4 top-4 rounded-full bg-terracotta px-3 py-1 text-sm font-bold text-white shadow-lg">-{sconto}%</span>
+            <span className="absolute left-4 top-4 rounded-full bg-terracotta-dark px-3 py-1 text-sm font-bold text-white shadow-lg">-{sconto}%</span>
           )}
         </div>
         {gallery.length > 1 && (
@@ -93,7 +93,7 @@ export default function VariantPicker({ titolo, marca, puntiChiave, variants, im
       <div className="space-y-6">
         <div>
           {marca && (
-            <Link href={`/marca/${marca.slug}`} className="text-sm font-semibold uppercase tracking-widest text-terracotta hover:underline">
+            <Link href={`/marca/${marca.slug}`} className="text-sm font-semibold uppercase tracking-widest text-terracotta-dark hover:underline">
               {marca.nome}
             </Link>
           )}
@@ -105,10 +105,10 @@ export default function VariantPicker({ titolo, marca, puntiChiave, variants, im
             <div className="flex flex-wrap items-baseline gap-3">
               <span className="text-4xl font-extrabold tracking-tight">{formatPrice(variant.prezzo)}</span>
               {variant.prezzo_barrato && (
-                <s className="text-lg text-neutral-400"><span className="sr-only">Prezzo precedente </span>{formatPrice(variant.prezzo_barrato)}</s>
+                <s className="text-lg text-neutral-500"><span className="sr-only">Prezzo precedente </span>{formatPrice(variant.prezzo_barrato)}</s>
               )}
             </div>
-            <p className="mt-1 text-sm text-neutral-500">
+            <p className="mt-1 text-sm text-neutral-600">
               IVA inclusa
               {risparmio > 0 && <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-800">Risparmi {formatPrice(risparmio)}</span>}
             </p>
@@ -118,7 +118,7 @@ export default function VariantPicker({ titolo, marca, puntiChiave, variants, im
         {puntiChiave.length > 0 && (
           <ul className="space-y-1.5 text-neutral-700">
             {puntiChiave.slice(0, 4).map((k) => (
-              <li key={k} className="flex gap-2"><span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-terracotta" />{k}</li>
+              <li key={k} className="flex gap-2"><span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-terracotta-dark" />{k}</li>
             ))}
           </ul>
         )}
@@ -154,10 +154,10 @@ export default function VariantPicker({ titolo, marca, puntiChiave, variants, im
         })}
 
         <div className="space-y-4 rounded-3xl bg-white p-5 shadow-sm">
-          <p role="status" className={cn("flex items-center gap-2 text-sm font-semibold", stock === 0 ? "text-terracotta" : stock <= 3 ? "text-amber-700" : "text-green-700")}>
+          <p role="status" className={cn("flex items-center gap-2 text-sm font-semibold", stock === 0 ? "text-terracotta-dark" : stock <= 3 ? "text-amber-700" : "text-green-700")}>
             <span aria-hidden className={cn("relative flex size-2.5")}>
               {stock > 0 && <span className={cn("absolute inline-flex size-full animate-ping rounded-full opacity-60", stock <= 3 ? "bg-amber-500" : "bg-green-500")} />}
-              <span className={cn("relative inline-flex size-2.5 rounded-full", stock === 0 ? "bg-terracotta" : stock <= 3 ? "bg-amber-500" : "bg-green-500")} />
+              <span className={cn("relative inline-flex size-2.5 rounded-full", stock === 0 ? "bg-terracotta-dark" : stock <= 3 ? "bg-amber-500" : "bg-green-500")} />
             </span>
             {stock === 0 ? "Esaurito" : stock <= 3 ? `Disponibile — solo ${stock} ${stock === 1 ? "pezzo" : "pezzi"}` : "Disponibile, pronto per la spedizione"}
           </p>

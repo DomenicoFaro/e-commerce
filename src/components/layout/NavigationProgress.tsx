@@ -17,7 +17,10 @@ export default function NavigationProgress() {
   }, [pathname, params]);
 
   useEffect(() => {
-    const start = () => setState("loading");
+    const start = () => {
+      document.documentElement.dataset.nav = "1"; // abilita le animazioni d'ingresso (vedi globals.css)
+      setState("loading");
+    };
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as HTMLElement).closest("a");

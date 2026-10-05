@@ -4,12 +4,12 @@ import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/catalog/Breadcrumbs";
 import VariantPicker from "@/components/catalog/VariantPicker";
 import ProductGrid from "@/components/catalog/ProductGrid";
-import { getCategoryBySlug, getProductBySlug, listProducts } from "@/lib/catalog";
+import { getCategoryBySlug, getProductBySlug, getPublishedSlugs, listProducts } from "@/lib/catalog";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
-// Nessuna pagina generata in build: ognuna viene creata alla prima visita e poi tenuta in cache
-export const generateStaticParams = async () => [];
+// Tutte le schede prodotto vengono generate in build; i nuovi prodotti alla prima visita
+export const generateStaticParams = async () => (await getPublishedSlugs()).map((slug) => ({ slug }));
 
 type Props = { params: { slug: string } };
 

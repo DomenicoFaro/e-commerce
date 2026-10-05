@@ -7,7 +7,6 @@ import ProductImage from "@/components/catalog/ProductImage";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import type { Spedizione } from "@/lib/settings";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { useCart } from "./CartProvider";
 
@@ -35,12 +34,11 @@ export default function CartView({ spedizione }: { spedizione: Spedizione }) {
       setLoading(false);
       return;
     }
-    createClient()
-      .from("product_variants")
-      .select("id, prezzo, prezzo_barrato, stock, colore, misura, taglia, products(titolo, slug, product_images(url, alt, ordine))")
-      .in("id", ids.split(","))
-      .then(({ data }) => {
-        setDetails(new Map((data ?? []).map((d) => [d.id, d as Detail])));
+    fetch(`/api/carrello?ids=${ids}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .catch(() => [])
+      .then((data: Detail[]) => {
+        setDetails(new Map(data.map((d) => [d.id, d])));
         setLoading(false);
       });
   }, [ids, ready]);
@@ -82,9 +80,9 @@ export default function CartView({ spedizione }: { spedizione: Spedizione }) {
                 <Link href={`/p/${p.slug}`} className="font-semibold hover:underline">{p.titolo}</Link>
                 {opzioni && <p className="text-sm text-neutral-600">{opzioni}</p>}
                 {d.stock === 0 ? (
-                  <p className="text-sm font-semibold text-terracotta">Esaurito: rimuovilo per procedere</p>
+                  <p className="text-sm font-semibold text-terracotta-dark">Esaurito: rimuovilo per procedere</p>
                 ) : quantita > d.stock ? (
-                  <p className="text-sm font-semibold text-terracotta">Disponibili solo {d.stock} pezzi</p>
+                  <p className="text-sm font-semibold text-terracotta-dark">Disponibili solo {d.stock} pezzi</p>
                 ) : null}
                 <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                   <div className="flex items-center rounded-full border border-neutral-300">

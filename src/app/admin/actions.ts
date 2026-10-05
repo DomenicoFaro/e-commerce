@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/catalog";
 import { redirect } from "next/navigation";
 import { euroToCents, field, fieldOrNull, requireAdmin, requireStaff, slugify } from "@/lib/admin";
-import { PAGINE } from "@/lib/settings";
+import { PAGINE, SETTINGS_TAG } from "@/lib/settings";
 import type { Enums, Json } from "@/types/database";
 
 // Tutte le scritture usano la sessione dell'utente: la RLS verifica ruolo staff/admin.
@@ -12,8 +13,11 @@ export type AdminState = { error?: string; message?: string } | null;
 
 const BUCKET = "product-images";
 
-/** Aggiorna subito tutte le pagine pubbliche (home, catalogo, prodotti). */
-const refresh = () => revalidatePath("/", "layout");
+/** Svuota la cache del catalogo e aggiorna subito tutte le pagine pubbliche. */
+const refresh = (tag = CATALOG_TAG) => {
+  revalidateTag(tag);
+  revalidatePath("/", "layout");
+};
 
 const dbError = (e: { code?: string; message: string }) =>
   e.code === "23505" ? "Esiste già un elemento con questo slug o codice." :
@@ -291,7 +295,7 @@ async function upsertSetting(chiave: string, valore: Json) {
   const { supabase } = await requireAdmin();
   const { error } = await supabase.from("settings").upsert({ chiave, valore });
   if (error) return { error: dbError(error) };
-  refresh();
+  refresh(SETTINGS_TAG);
   return { message: "Salvato." };
 }
 

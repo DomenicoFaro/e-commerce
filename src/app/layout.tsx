@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import CartProvider from "@/components/cart/CartProvider";
 import NavigationProgress from "@/components/layout/NavigationProgress";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+// display "optional": niente ridisegno al caricamento del font (LCP più rapido), dalla seconda visita è in cache
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "optional" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),

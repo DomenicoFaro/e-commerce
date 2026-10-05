@@ -9,6 +9,13 @@ body {
   @apply outline outline-2 outline-offset-2 outline-navy;
 }
 
+/* Animazioni d'ingresso solo dopo la prima navigazione: al primo caricamento il contenuto
+   è visibile subito (non ritarda il Largest Contentful Paint). data-nav è impostato da NavigationProgress. */
+html:not([data-nav]) .animate-page-in,
+html:not([data-nav]) .animate-card-in {
+  animation: none;
+}
+
 /* Chi preferisce meno movimento non vede animazioni */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

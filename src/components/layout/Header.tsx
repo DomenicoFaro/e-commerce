@@ -10,15 +10,15 @@ export default function Header() {
     <header className="sticky top-0 z-40">
       <div className="bg-navy text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
-          <Link href="/" aria-label="Shop House Giarre — home" className="shrink-0">
+          <Link href="/" className="shrink-0">
             <Logo />
           </Link>
 
           <SearchBox departments={DEPARTMENTS} />
 
           <nav aria-label="Account" className="ml-auto flex items-center gap-1 text-sm">
-            <Link href="/account" className="flex items-center gap-2 rounded-full px-3 py-2 transition hover:bg-white/10">
-              <span className="flex size-8 items-center justify-center rounded-full bg-white/10"><User size={18} /></span>
+            <Link href="/account" aria-label="Account e ordini" className="flex items-center gap-2 rounded-full px-3 py-2 transition hover:bg-white/10">
+              <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-white/10"><User size={18} /></span>
               <span className="hidden leading-tight lg:block">
                 <span className="block text-xs text-white/60">Ciao, accedi</span>
                 <span className="font-semibold">Account e ordini</span>
@@ -43,7 +43,7 @@ export default function Header() {
               ))}
             </ul>
           </details>
-          <Link href="/offerte" className="flex shrink-0 items-center gap-1.5 rounded-full bg-terracotta/10 px-4 py-1.5 font-semibold text-terracotta transition hover:bg-terracotta/20">
+          <Link href="/offerte" className="flex shrink-0 items-center gap-1.5 rounded-full bg-terracotta/10 px-4 py-1.5 font-semibold text-terracotta-dark transition hover:bg-terracotta/20">
             <Percent size={14} /> Offerte
           </Link>
           <Link href="/s?sort=novita" className="flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 font-medium text-neutral-700 transition hover:bg-neutral-100">

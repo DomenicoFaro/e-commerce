@@ -1,4 +1,5 @@
-import { cache } from "react";
+import "server-only";
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import { STORE } from "@/lib/store";
 import type { Json } from "@/types/database";
@@ -53,10 +54,15 @@ const obj = (v: Json | undefined) => (v && typeof v === "object" && !Array.isArr
 const str = (v: Json | undefined, fallback = "") => (typeof v === "string" && v ? v : fallback);
 const num = (v: Json | undefined) => (typeof v === "number" ? v : null);
 
-export const getSettings = cache(async () => {
-  const { data } = await createPublicClient().from("settings").select("*");
-  return new Map((data ?? []).map((r) => [r.chiave, r.valore]));
-});
+export const SETTINGS_TAG = "impostazioni";
+
+const getSettingRows = unstable_cache(
+  async () => (await createPublicClient().from("settings").select("*")).data ?? [],
+  ["impostazioni"],
+  { tags: [SETTINGS_TAG], revalidate: 600 },
+);
+
+export const getSettings = async () => new Map((await getSettingRows()).map((r) => [r.chiave, r.valore]));
 
 export async function getNegozio(): Promise<Negozio> {
   const v = obj((await getSettings()).get("negozio"));

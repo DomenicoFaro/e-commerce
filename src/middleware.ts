@@ -24,4 +24,5 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|webp)$).*)"] };
+// Solo le pagine che usano la sessione: catalogo e pagine pubbliche non aspettano Supabase Auth
+export const config = { matcher: ["/admin/:path*", "/account/:path*", "/auth/:path*"] };

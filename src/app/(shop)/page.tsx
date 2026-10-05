@@ -9,7 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getBrands, getDepartments, getFeaturedProducts, listProducts } from "@/lib/catalog";
 import { getHome, getNegozio } from "@/lib/settings";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 const ICONS: Record<string, { icon: LucideIcon; bg: string }> = {
   "biancheria-letto": { icon: BedDouble, bg: "bg-rose-100 text-rose-700" },
@@ -158,8 +158,8 @@ export default async function HomePage() {
           <h2 className="text-2xl font-extrabold tracking-tight">Vieni a trovarci</h2>
           <p className="text-neutral-600">Ordina online e ritira gratis in negozio, oppure passa a scoprire tutte le novità.</p>
           <ul className="space-y-2 text-sm">
-            <li className="flex gap-2"><MapPin size={18} className="shrink-0 text-terracotta" />{negozio.indirizzo}</li>
-            <li className="flex gap-2"><Clock size={18} className="shrink-0 text-terracotta" />{negozio.orari_testo}</li>
+            <li className="flex gap-2"><MapPin size={18} className="shrink-0 text-terracotta-dark" />{negozio.indirizzo}</li>
+            <li className="flex gap-2"><Clock size={18} className="shrink-0 text-terracotta-dark" />{negozio.orari_testo}</li>
           </ul>
           <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: "dark" })}>
             Indicazioni stradali <ArrowRight size={18} />

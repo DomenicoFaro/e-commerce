@@ -11,7 +11,7 @@ export default function Logo({ className, inverted }: { className?: string; inve
       </svg>
       <span className="flex flex-col leading-none">
         <span className={cn("text-lg font-extrabold tracking-tight", inverted ? "text-navy" : "text-white")}>Shop House</span>
-        <span className={cn("text-[10px] font-semibold uppercase tracking-[0.3em]", inverted ? "text-terracotta" : "text-sun")}>Giarre</span>
+        <span className={cn("text-[10px] font-semibold uppercase tracking-[0.3em]", inverted ? "text-terracotta-dark" : "text-sun")}>Giarre</span>
       </span>
     </span>
   );

@@ -3,9 +3,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight, ChevronDown, Search } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
 type Suggestion = { id: string; titolo: string; slug: string };
+/** Suggerimenti già ricevuti in questa visita (tornando indietro con il cursore non si richiama il server). */
+const memo = new Map<string, Suggestion[]>();
+
 type Props = { departments: readonly { nome: string; slug: string }[] };
 
 /** Ricerca con autocompletamento: suggerimenti da search_products mentre si scrive. */
@@ -24,13 +26,26 @@ export default function SearchBox({ departments }: Props) {
       setItems([]);
       return;
     }
+    const key = term.toLowerCase();
+    const hit = memo.get(key);
+    if (hit) {
+      setItems(hit);
+      setActive(-1);
+      return;
+    }
     const id = ++lastRequest.current;
     const t = setTimeout(async () => {
-      const { data } = await createClient().rpc("search_products", { q: term, max_results: 6 });
-      if (id !== lastRequest.current) return; // risposta superata da una digitazione successiva
-      setItems(data ?? []);
-      setActive(-1);
-    }, 120);
+      try {
+        const res = await fetch(`/api/suggerimenti?q=${encodeURIComponent(key)}`);
+        const data: Suggestion[] = res.ok ? await res.json() : [];
+        memo.set(key, data);
+        if (id !== lastRequest.current) return; // risposta superata da una digitazione successiva
+        setItems(data);
+        setActive(-1);
+      } catch {
+        /* rete assente: nessun suggerimento */
+      }
+    }, 100);
     return () => clearTimeout(t);
   }, [q]);
 
@@ -78,7 +93,7 @@ export default function SearchBox({ departments }: Props) {
         aria-activedescendant={visible && active >= 0 && active < items.length ? `${listId}-${active}` : undefined}
         className="h-full min-w-0 flex-1 bg-transparent px-3 text-neutral-900 placeholder:text-neutral-400 focus:outline-none [&::-webkit-search-cancel-button]:hidden" />
       <button type="submit"
-        className="flex h-9 items-center gap-2 rounded-full bg-terracotta px-4 text-sm font-semibold text-white transition hover:bg-terracotta/90">
+        className="flex h-9 items-center gap-2 rounded-full bg-terracotta-dark px-4 text-sm font-semibold text-white transition hover:bg-terracotta-dark/90">
         <Search size={16} aria-hidden /><span className="hidden sm:inline">Cerca</span><span className="sr-only sm:hidden">Cerca</span>
       </button>
 
