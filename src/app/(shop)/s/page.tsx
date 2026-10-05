@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import CatalogLayout from "@/components/catalog/CatalogLayout";
 import Filters from "@/components/catalog/Filters";
+import PageHero from "@/components/catalog/PageHero";
 import ProductGrid from "@/components/catalog/ProductGrid";
-import { getCategoryBySlug, listProducts, searchProductIds } from "@/lib/catalog";
+import { getCategoryBySlug, getDepartments, listProducts, searchProductIds } from "@/lib/catalog";
 import { firstParam, parseFilters, toListFilters, type SearchParams } from "@/lib/filters";
 
 type Props = { searchParams: SearchParams };
@@ -17,9 +19,10 @@ export default async function SearchPage({ searchParams }: Props) {
   const reparto = firstParam(searchParams.c) ?? "";
   const filters = parseFilters(searchParams);
 
-  const [productIds, dept] = await Promise.all([
+  const [productIds, dept, departments] = await Promise.all([
     q ? searchProductIds(q) : undefined,
     reparto ? getCategoryBySlug(reparto) : null,
+    getDepartments(),
   ]);
   const { products, facets } = await listProducts({ ...toListFilters(filters), productIds, categoryIds: dept?.ids });
 
@@ -30,20 +33,30 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <>
-      <h1 className="mb-4 text-2xl font-bold">
-        {q ? <>Risultati per “{q}”</> : "Tutti i prodotti"}
-        {dept && <span className="font-normal text-neutral-600"> in {dept.category.nome}</span>}
-      </h1>
+      <PageHero
+        eyebrow={q ? "Risultati di ricerca" : "Catalogo"}
+        title={q ? <>“{q}”</> : filters.sort === "novita" ? "Nuovi arrivi" : "Tutti i prodotti"}
+        description={dept ? `Nel reparto ${dept.category.nome}` : undefined}
+      />
       <CatalogLayout
-        filters={<Filters facets={facets} params={filters} hidden={hidden} showRilevanza={!!q} resetHref={resetHref} totale={products.length} />}
+        filters={<Filters facets={facets} params={filters} hidden={hidden} resetHref={resetHref} />}
+        totale={products.length} basePath="/s" searchParams={searchParams} sort={filters.sort} showRilevanza={!!q}
+        labels={Object.fromEntries(facets.marche.map((m) => [m.slug, m.nome]))}
       >
-        {q && products.length === 0 ? (
-          <p className="rounded-lg bg-white p-8 text-center text-neutral-600">
-            Nessun prodotto per “{q}”. Prova con un’altra parola o sfoglia le categorie.
-          </p>
-        ) : (
-          <ProductGrid products={products} />
-        )}
+        <ProductGrid
+          products={products}
+          empty={
+            <>
+              <p className="text-lg font-semibold text-neutral-800">Nessun prodotto per “{q}”</p>
+              <p>Prova con un&apos;altra parola o sfoglia i reparti:</p>
+              <ul className="mt-2 flex flex-wrap justify-center gap-2">
+                {departments.map((d) => (
+                  <li key={d.id}><Link href={`/c/${d.slug}`} className="block rounded-full bg-neutral-100 px-3 py-1.5 text-sm hover:bg-navy hover:text-white">{d.nome}</Link></li>
+                ))}
+              </ul>
+            </>
+          }
+        />
       </CatalogLayout>
     </>
   );

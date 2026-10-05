@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Check, ChevronDown } from "lucide-react";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/catalog/Breadcrumbs";
 import VariantPicker from "@/components/catalog/VariantPicker";
-import { getCategoryBySlug, getProductBySlug } from "@/lib/catalog";
+import ProductGrid from "@/components/catalog/ProductGrid";
+import { getCategoryBySlug, getProductBySlug, listProducts } from "@/lib/catalog";
 
 export const revalidate = 60;
 
@@ -48,43 +49,60 @@ export default async function ProductPage({ params }: Props) {
     },
   };
 
+  // Correlati dallo stesso reparto (la sottocategoria spesso ha pochi prodotti)
+  const reparto = cat && cat.path.length > 1 ? await getCategoryBySlug(cat.path[0].slug) : cat;
+  const correlati = reparto
+    ? (await listProducts({ categoryIds: reparto.ids, disponibili: true })).products.filter((x) => x.id !== p.id).slice(0, 4)
+    : [];
+
+  const dettagli = [
+    { titolo: "Descrizione", testo: p.descrizione },
+    { titolo: "Caratteristiche", lista: p.punti_chiave },
+    { titolo: "Materiale", testo: p.materiale },
+    { titolo: "Cura e lavaggio", testo: p.cura },
+  ].filter((d) => d.testo || d.lista?.length);
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <Breadcrumbs
         items={[...(cat?.path ?? []).map((c) => ({ label: c.nome, href: `/c/${c.slug}` })), { label: p.titolo }]}
       />
-      {p.brands && (
-        <Link href={`/marca/${p.brands.slug}`} className="mb-1 inline-block text-sm text-navy hover:underline">
-          {p.brands.nome}
-        </Link>
-      )}
       {p.product_variants.length > 0 ? (
-        <VariantPicker titolo={p.titolo} variants={p.product_variants} images={p.product_images} />
+        <VariantPicker titolo={p.titolo} marca={p.brands} puntiChiave={p.punti_chiave} variants={p.product_variants} images={p.product_images} />
       ) : (
-        <h1 className="text-2xl font-bold">{p.titolo}</h1>
+        <h1 className="text-3xl font-extrabold">{p.titolo}</h1>
       )}
 
-      <section className="mt-10 grid gap-8 md:grid-cols-2">
-        <div>
-          {p.punti_chiave.length > 0 && (
-            <>
-              <h2 className="mb-2 text-lg font-bold">In breve</h2>
-              <ul className="list-disc space-y-1 pl-5">{p.punti_chiave.map((k) => <li key={k}>{k}</li>)}</ul>
-            </>
-          )}
-          {p.descrizione && (
-            <>
-              <h2 className="mb-2 mt-6 text-lg font-bold">Descrizione</h2>
-              <p className="whitespace-pre-line text-neutral-800">{p.descrizione}</p>
-            </>
-          )}
-        </div>
-        <dl className="h-fit space-y-3 rounded-lg bg-white p-4 text-sm">
-          {p.materiale && (<div><dt className="font-semibold">Materiale</dt><dd>{p.materiale}</dd></div>)}
-          {p.cura && (<div><dt className="font-semibold">Cura e lavaggio</dt><dd>{p.cura}</dd></div>)}
-        </dl>
-      </section>
+      {dettagli.length > 0 && (
+        <section aria-labelledby="dettagli" className="mt-16 max-w-3xl">
+          <h2 id="dettagli" className="mb-4 text-2xl font-extrabold tracking-tight">Dettagli del prodotto</h2>
+          <div className="divide-y divide-neutral-200 overflow-hidden rounded-3xl bg-white shadow-sm">
+            {dettagli.map((d, i) => (
+              <details key={d.titolo} open={i === 0} className="group">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-6 py-5 font-semibold transition hover:bg-neutral-50">
+                  {d.titolo}
+                  <ChevronDown size={20} className="text-neutral-400 transition-transform duration-300 group-open:rotate-180" />
+                </summary>
+                <div className="animate-fade-in px-6 pb-6 leading-relaxed text-neutral-700">
+                  {d.lista ? (
+                    <ul className="space-y-2">{d.lista.map((k) => <li key={k} className="flex gap-2"><Check size={18} className="mt-0.5 shrink-0 text-green-600" />{k}</li>)}</ul>
+                  ) : (
+                    <p className="whitespace-pre-line">{d.testo}</p>
+                  )}
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {correlati.length > 0 && (
+        <section aria-labelledby="correlati" className="mt-16">
+          <h2 id="correlati" className="mb-5 text-2xl font-extrabold tracking-tight">Potrebbe piacerti anche</h2>
+          <ProductGrid products={correlati} />
+        </section>
+      )}
     </>
   );
 }

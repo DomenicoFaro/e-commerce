@@ -90,7 +90,7 @@ export default async function HomePage() {
         <section aria-labelledby="offerte" className="rounded-3xl bg-terracotta/10 p-6 md:p-8">
           <SectionTitle id="offerte" title="Offerte del momento" href="/offerte" link="Tutte le offerte" />
           <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {offerte.map((p) => <li key={p.id} className="flex"><ProductCard product={p} /></li>)}
+            {offerte.map((p, i) => <li key={p.id} className="flex"><ProductCard product={p} index={i} /></li>)}
           </ul>
         </section>
       )}
@@ -100,7 +100,7 @@ export default async function HomePage() {
         <section aria-labelledby="in-evidenza">
           <SectionTitle id="in-evidenza" title="In evidenza" href="/s?sort=novita" link="Vedi tutti" />
           <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {featured.map((p) => <li key={p.id} className="flex"><ProductCard product={p} /></li>)}
+            {featured.map((p, i) => <li key={p.id} className="flex"><ProductCard product={p} index={i} /></li>)}
           </ul>
         </section>
       )}

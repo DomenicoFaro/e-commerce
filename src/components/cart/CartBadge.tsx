@@ -12,7 +12,7 @@ export default function CartBadge() {
       <span className="relative flex size-8 items-center justify-center rounded-full bg-sun text-navy">
         <ShoppingBag size={18} />
         {count > 0 && (
-          <span className="absolute -right-1.5 -top-1.5 flex min-w-5 items-center justify-center rounded-full bg-terracotta px-1 text-[11px] font-bold leading-5 text-white ring-2 ring-navy">
+          <span key={count} className="absolute -right-1.5 -top-1.5 animate-bump flex min-w-5 items-center justify-center rounded-full bg-terracotta px-1 text-[11px] font-bold leading-5 text-white ring-2 ring-navy">
             {count > 99 ? "99+" : count}
           </span>
         )}

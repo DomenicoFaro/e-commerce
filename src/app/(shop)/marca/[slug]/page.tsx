@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/catalog/Breadcrumbs";
 import CatalogLayout from "@/components/catalog/CatalogLayout";
 import Filters from "@/components/catalog/Filters";
+import PageHero from "@/components/catalog/PageHero";
 import ProductGrid from "@/components/catalog/ProductGrid";
 import { getBrandBySlug, listProducts } from "@/lib/catalog";
 import { parseFilters, toListFilters, type SearchParams } from "@/lib/filters";
@@ -25,19 +26,18 @@ export default async function BrandPage({ params, searchParams }: Props) {
 
   const filters = parseFilters(searchParams);
   const { products, facets } = await listProducts({ ...toListFilters(filters), brandSlug: brand.slug });
+  const base = `/marca/${brand.slug}`;
 
   return (
     <>
       <Breadcrumbs items={[{ label: brand.nome }]} />
-      <h1 className="text-2xl font-bold">{brand.nome}</h1>
-      {brand.descrizione && <p className="mt-1 max-w-2xl text-neutral-700">{brand.descrizione}</p>}
-      <div className="mt-4">
-        <CatalogLayout
-          filters={<Filters facets={facets} params={filters} showMarche={false} resetHref={`/marca/${brand.slug}`} totale={products.length} />}
-        >
-          <ProductGrid products={products} />
-        </CatalogLayout>
-      </div>
+      <PageHero tone="light" eyebrow="Marca" title={brand.nome} description={brand.descrizione ?? `Tutti i prodotti ${brand.nome} disponibili da Shop House Giarre.`} />
+      <CatalogLayout
+        filters={<Filters facets={facets} params={filters} showMarche={false} resetHref={base} />}
+        totale={products.length} basePath={base} searchParams={searchParams} sort={filters.sort}
+      >
+        <ProductGrid products={products} />
+      </CatalogLayout>
     </>
   );
 }
