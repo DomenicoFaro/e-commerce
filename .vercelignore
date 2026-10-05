@@ -1,0 +1,9 @@
+# Mai caricare chiavi e file locali: le variabili si impostano su Vercel
+.env
+.env*.local
+.claude
+.next
+node_modules
+supabase/.temp
+*.tsbuildinfo
+.DS_Store
