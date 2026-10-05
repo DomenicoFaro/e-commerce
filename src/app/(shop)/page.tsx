@@ -85,12 +85,35 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Offerte */}
+      {offerte.length > 0 && (
+        <section aria-labelledby="offerte" className="rounded-3xl bg-terracotta/10 p-6 md:p-8">
+          <SectionTitle id="offerte" title="Offerte del momento" href="/offerte" link="Tutte le offerte" />
+          <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {offerte.map((p) => <li key={p.id} className="flex"><ProductCard product={p} /></li>)}
+          </ul>
+        </section>
+      )}
+
+      {/* In evidenza */}
+      {featured.length > 0 && (
+        <section aria-labelledby="in-evidenza">
+          <SectionTitle id="in-evidenza" title="In evidenza" href="/s?sort=novita" link="Vedi tutti" />
+          <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {featured.map((p) => <li key={p.id} className="flex"><ProductCard product={p} /></li>)}
+          </ul>
+        </section>
+      )}
+
       {/* Vantaggi */}
-      <section aria-label="Perché sceglierci" className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {VANTAGGI.map(({ icon: Icon, titolo, testo }) => (
-          <div key={titolo} className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-navy/5 text-navy"><Icon size={22} /></span>
-            <span><span className="block font-semibold leading-tight">{titolo}</span><span className="text-xs text-neutral-500">{testo}</span></span>
+      <section aria-label="Perché sceglierci" className="grid grid-cols-2 overflow-hidden rounded-3xl bg-navy text-white md:grid-cols-4">
+        {VANTAGGI.map(({ icon: Icon, titolo, testo }, i) => (
+          <div key={titolo} className={`flex flex-col items-center gap-3 p-6 text-center ${i > 0 ? "md:border-l md:border-white/10" : ""} ${i % 2 ? "border-l border-white/10 md:border-l" : ""} ${i > 1 ? "border-t border-white/10 md:border-t-0" : ""}`}>
+            <span className="flex size-12 items-center justify-center rounded-2xl bg-white/10 text-sun"><Icon size={24} /></span>
+            <span>
+              <span className="block font-bold">{titolo}</span>
+              <span className="text-sm text-white/60">{testo}</span>
+            </span>
           </div>
         ))}
       </section>
@@ -112,26 +135,6 @@ export default async function HomePage() {
           })}
         </ul>
       </section>
-
-      {/* In evidenza */}
-      {featured.length > 0 && (
-        <section aria-labelledby="in-evidenza">
-          <SectionTitle id="in-evidenza" title="In evidenza" href="/s?sort=novita" link="Vedi tutti" />
-          <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {featured.map((p) => <li key={p.id} className="flex"><ProductCard product={p} /></li>)}
-          </ul>
-        </section>
-      )}
-
-      {/* Offerte */}
-      {offerte.length > 0 && (
-        <section aria-labelledby="offerte" className="rounded-3xl bg-terracotta/10 p-6 md:p-8">
-          <SectionTitle id="offerte" title="Offerte del momento" href="/offerte" link="Tutte le offerte" />
-          <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {offerte.map((p) => <li key={p.id} className="flex"><ProductCard product={p} /></li>)}
-          </ul>
-        </section>
-      )}
 
       {/* Marchi */}
       {brands.length > 0 && (

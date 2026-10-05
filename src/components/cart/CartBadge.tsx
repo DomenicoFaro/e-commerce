@@ -1,20 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useCart } from "./CartProvider";
 
 export default function CartBadge() {
   const { count } = useCart();
   return (
-    <Link href="/carrello" aria-label={`Carrello, ${count} articoli`} className="relative flex items-center gap-1">
-      <ShoppingCart size={22} />
-      <span className="hidden font-semibold sm:inline">Carrello</span>
-      {count > 0 && (
-        <span className="absolute -left-2 -top-2 min-w-5 rounded-full bg-terracotta px-1.5 text-center text-xs font-bold">
-          {count > 99 ? "99+" : count}
-        </span>
-      )}
+    <Link href="/carrello" aria-label={`Carrello, ${count} articoli`}
+      className="flex items-center gap-2 rounded-full px-3 py-2 transition hover:bg-white/10">
+      <span className="relative flex size-8 items-center justify-center rounded-full bg-sun text-navy">
+        <ShoppingBag size={18} />
+        {count > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 flex min-w-5 items-center justify-center rounded-full bg-terracotta px-1 text-[11px] font-bold leading-5 text-white ring-2 ring-navy">
+            {count > 99 ? "99+" : count}
+          </span>
+        )}
+      </span>
+      <span className="hidden font-semibold lg:inline">Carrello</span>
     </Link>
   );
 }

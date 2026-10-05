@@ -8,13 +8,3 @@ export const DEPARTMENTS = [
   { nome: "Garden", slug: "garden" },
   { nome: "Cartoleria, scuola e party", slug: "cartoleria-scuola-party" },
 ] as const;
-
-export const QUICK_LINKS = [
-  { label: "Offerte", href: "/offerte" },
-  { label: "Nuovi arrivi", href: "/s?sort=novita" },
-  { label: "Biancheria letto", href: "/c/biancheria-letto" },
-  { label: "Bagno", href: "/c/bagno" },
-  { label: "Cucina", href: "/c/cucina-e-tavola" },
-  { label: "Intimo", href: "/c/intimo-e-pigiami" },
-  { label: "Marchi", href: "/marca/caleffi" },
-] as const;
